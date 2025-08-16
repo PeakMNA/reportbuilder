@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__serena__onboarding",
+      "mcp__serena__list_dir",
+      "mcp__serena__get_symbols_overview",
+      "Bash(npm run:*)",
+      "mcp__serena__find_file",
+      "mcp__serena__write_memory",
+      "mcp__shadcn__list_components",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(npm install:*)",
+      "Bash(cat:*)",
+      "Bash(cp:*)",
+      "Bash(grep:*)",
+      "Bash(rm:*)",
+      "Bash(mkdir:*)",
+      "mcp__serena__search_for_pattern",
+      "WebSearch",
+      "mcp__serena__find_symbol",
+      "Bash(mv:*)",
+      "Bash(pkill:*)",
+      "mcp__serena__check_onboarding_performed",
+      "Bash(npx tsc:*)"
+    ],
+    "deny": [],
+    "ask": [],
+    "defaultMode": "acceptEdits"
+  }
+}

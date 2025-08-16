@@ -12,20 +12,29 @@ export default function Home() {
           height={38}
           priority
         />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+        <div className="text-center sm:text-left">
+          <h1 className="text-2xl font-bold mb-4">ReportBuilder Platform</h1>
+          <p className="text-lg mb-4">Drag-and-drop report designer with resizable components</p>
+          <ol className="font-mono list-inside list-decimal text-sm/6">
+            <li className="mb-2 tracking-[-.01em]">
+              ✅ <strong>Drag & Drop</strong>: Components from palette to canvas
+            </li>
+            <li className="mb-2 tracking-[-.01em]">
+              ✅ <strong>Resize & Move</strong>: 8-direction resizing with grid snapping
+            </li>
+            <li className="tracking-[-.01em]">
+              ✅ <strong>Properties Panel</strong>: Real-time component property updates
+            </li>
+          </ol>
+        </div>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
+          <a
+            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-blue-600 text-white gap-2 hover:bg-blue-700 font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
+            href="/designer"
+          >
+            🎨 Open Report Designer
+          </a>
           <a
             className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
             href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"

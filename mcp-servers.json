@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/peak/dev/reportbuilder",
+        "/Users/peak/dev",
+        "/Users/peak/Documents"
+      ]
+    }
+  }
+}
+
