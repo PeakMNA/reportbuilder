@@ -38,7 +38,9 @@
       "mcp__playwright__browser_drag",
       "mcp__playwright__browser_navigate",
       "mcp__playwright__browser_close",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git remote add:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": [],
