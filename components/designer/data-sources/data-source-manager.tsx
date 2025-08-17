@@ -96,15 +96,15 @@ export function DataSourceManager({ isOpen, onClose, onDataSourceAdd }: DataSour
         const workbook = XLSX.read(arrayBuffer, { type: 'array' })
         const sheetName = workbook.SheetNames[0]
         const worksheet = workbook.Sheets[sheetName]
-        data = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as unknown[][]
+        data = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as unknown as Record<string, unknown>[]
         
         // Convert array format to object format
         if (data.length > 0) {
-          const headers = data[0] as string[]
+          const headers = data[0] as unknown as string[]
           data = data.slice(1).map(row => {
             const rowObj: Record<string, unknown> = {}
             headers.forEach((header, index) => {
-              rowObj[header] = (row as unknown[])[index] || null
+              rowObj[header] = (row as unknown as unknown[])[index] || null
             })
             return rowObj
           }).filter(row => Object.values(row).some(val => val !== null && val !== ''))

@@ -88,5 +88,5 @@ export const GROUP_FOOTER_COMPONENT_TYPE: ComponentType = {
   description: 'Summary calculations at group end',
   category: 'Data',
   icon: 'Calculator',
-  defaultProperties: DEFAULT_GROUP_FOOTER_PROPERTIES
+  defaultProperties: DEFAULT_GROUP_FOOTER_PROPERTIES as unknown as Record<string, unknown>
 };

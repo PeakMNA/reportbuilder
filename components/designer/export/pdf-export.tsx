@@ -74,12 +74,13 @@ export function PDFExport({ canvasRef, reportTitle = 'Report' }: PDFExportProps)
   })
 
   const getPageDimensions = (format: string, orientation: string) => {
-    const dimensions = {
+    const dimensionsMap: Record<string, { width: number; height: number }> = {
       a4: { width: 210, height: 297 },
       letter: { width: 216, height: 279 }, 
       a3: { width: 297, height: 420 },
       legal: { width: 216, height: 356 }
-    }[format] || dimensions.a4
+    }
+    const dimensions = dimensionsMap[format] || dimensionsMap.a4
 
     return orientation === 'landscape' 
       ? { width: dimensions.height, height: dimensions.width }

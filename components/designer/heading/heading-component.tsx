@@ -23,7 +23,7 @@ export const HEADING_COMPONENT_TYPE: ComponentType = {
   name: 'Heading',
   category: 'Text',
   description: 'Semantic heading with proper hierarchy levels',
-  icon: <Type className="h-4 w-4" />,
+  icon: 'Type',
   defaultWidth: 200,
   defaultHeight: 40,
   minWidth: 100,

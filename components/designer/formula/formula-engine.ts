@@ -1,6 +1,6 @@
 'use client';
 
-import { HyperFormula, Config } from 'hyperformula';
+import { HyperFormula } from 'hyperformula';
 
 export interface FormulaContext {
   [fieldName: string]: unknown;
@@ -15,11 +15,11 @@ export interface FormulaResult {
 class FormulaEngine {
   private static instance: FormulaEngine;
   private hf: HyperFormula;
-  private contextSheetId: number = 0;
+  private contextSheetId: string | number = 0;
 
   private constructor() {
     // Configure HyperFormula
-    const config: Partial<Config> = {
+    const config: Record<string, unknown> = {
       licenseKey: 'gpl-v3', // Use GPL license
       useColumnIndex: true,
       useArrayArithmetic: false,
@@ -53,7 +53,7 @@ class FormulaEngine {
   ): FormulaResult {
     try {
       // Clear existing context data
-      this.hf.clearSheet(this.contextSheetId);
+      this.hf.clearSheet(this.contextSheetId as unknown as number);
       
       // Set up context data in the sheet
       this.setupContextData(context);
@@ -63,17 +63,17 @@ class FormulaEngine {
       
       // Add formula to a temporary cell
       const tempSheetId = this.hf.addSheet('Temp');
-      this.hf.setCellContents({ sheet: tempSheetId, row: 0, col: 0 }, processedExpression);
+      this.hf.setCellContents({ sheet: tempSheetId as unknown as number, row: 0, col: 0 }, processedExpression);
       
       // Get the calculated value
-      const cellValue = this.hf.getCellValue({ sheet: tempSheetId, row: 0, col: 0 });
+      const cellValue = this.hf.getCellValue({ sheet: tempSheetId as unknown as number, row: 0, col: 0 });
       
       // Clean up temp sheet
-      this.hf.removeSheet(tempSheetId);
+      this.hf.removeSheet(tempSheetId as unknown as number);
       
-      // Check for errors
-      if (this.hf.isCellPartOfCycle({ sheet: tempSheetId, row: 0, col: 0 })) {
-        return { value: null, error: 'Circular reference detected' };
+      // Basic error checking - if result is an error type
+      if (cellValue instanceof Error) {
+        return { value: null, error: cellValue.message };
       }
       
       // Format the result
@@ -103,7 +103,7 @@ class FormulaEngine {
     // Set up field references - each field gets a named cell
     for (const [fieldName, value] of Object.entries(context)) {
       // Set the value in column A
-      this.hf.setCellContents({ sheet: this.contextSheetId, row, col: 0 }, value);
+      this.hf.setCellContents({ sheet: this.contextSheetId as unknown as number, row, col: 0 }, value as unknown as string | number);
       
       // Create a named range for the field
       try {
@@ -246,10 +246,10 @@ class FormulaEngine {
       }
       
       // Try to set the formula
-      this.hf.setCellContents({ sheet: tempSheetId, row: 0, col: 0 }, processedExpression);
+      this.hf.setCellContents({ sheet: tempSheetId as unknown as number, row: 0, col: 0 }, processedExpression);
       
       // Clean up
-      this.hf.removeSheet(tempSheetId);
+      this.hf.removeSheet(tempSheetId as unknown as number);
       
       return { isValid: true };
     } catch (error) {

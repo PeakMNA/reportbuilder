@@ -17,7 +17,8 @@ import {
   User,
   Settings,
   Grid3X3,
-  Database
+  Database,
+  Workflow
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -44,6 +45,8 @@ interface Component {
 interface DesignerHeaderProps {
   onToggleDataPreview: () => void
   showDataPreview: boolean
+  showWorkflow?: boolean
+  onToggleWorkflow?: () => void
   canvasRef?: React.RefObject<HTMLDivElement>
   reportTitle?: string
   currentComponents?: Component[]
@@ -57,7 +60,9 @@ interface DesignerHeaderProps {
 
 export function DesignerHeader({ 
   onToggleDataPreview, 
-  showDataPreview, 
+  showDataPreview,
+  showWorkflow = false,
+  onToggleWorkflow,
   canvasRef, 
   reportTitle = 'Report',
   currentComponents = [],
@@ -182,14 +187,24 @@ export function DesignerHeader({
         <Separator orientation="vertical" className="h-6" />
 
         {/* View Controls */}
-        <Button 
-          variant={showDataPreview ? "default" : "outline"} 
-          size="sm"
-          onClick={onToggleDataPreview}
-        >
-          <Database className="mr-2 h-4 w-4" />
-          Data Preview
-        </Button>
+        <div className="flex items-center space-x-2">
+          <Button 
+            variant={showWorkflow ? "default" : "outline"} 
+            size="sm"
+            onClick={onToggleWorkflow}
+          >
+            <Workflow className="mr-2 h-4 w-4" />
+            Workflow
+          </Button>
+          <Button 
+            variant={showDataPreview ? "default" : "outline"} 
+            size="sm"
+            onClick={onToggleDataPreview}
+          >
+            <Database className="mr-2 h-4 w-4" />
+            Data Preview
+          </Button>
+        </div>
       </div>
 
       <div className="ml-auto flex items-center space-x-4">

@@ -133,7 +133,7 @@ export function DataFieldComponent({
       
       case 'date':
         try {
-          return new Date(value).toLocaleDateString('en-US', {
+          return new Date(value as string | number | Date).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
@@ -251,5 +251,5 @@ export const DATA_FIELD_COMPONENT_TYPE: ComponentType = {
   description: 'Dynamic content from data sources with formatting',
   category: 'Data',
   icon: 'Database',
-  defaultProperties: DEFAULT_DATA_FIELD_PROPERTIES
+  defaultProperties: DEFAULT_DATA_FIELD_PROPERTIES as unknown as Record<string, unknown>
 };

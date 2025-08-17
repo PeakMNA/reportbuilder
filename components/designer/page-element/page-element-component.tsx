@@ -117,5 +117,5 @@ export const PAGE_ELEMENT_COMPONENT_TYPE: ComponentType = {
   description: 'Dynamic page metadata like page numbers and dates',
   category: 'Layout',
   icon: 'Hash',
-  defaultProperties: DEFAULT_PAGE_ELEMENT_PROPERTIES
+  defaultProperties: DEFAULT_PAGE_ELEMENT_PROPERTIES as unknown as Record<string, unknown>
 };

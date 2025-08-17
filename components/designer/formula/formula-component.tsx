@@ -286,5 +286,5 @@ export const FORMULA_COMPONENT_TYPE: ComponentType = {
   description: 'Calculated fields with mathematical expressions',
   category: 'Data',
   icon: 'Calculator',
-  defaultProperties: DEFAULT_FORMULA_PROPERTIES
+  defaultProperties: DEFAULT_FORMULA_PROPERTIES as unknown as Record<string, unknown>
 };

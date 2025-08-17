@@ -21,7 +21,7 @@ export const CIRCLE_COMPONENT_TYPE: ComponentType = {
   name: 'Circle',
   category: 'Shapes',
   description: 'Basic circular shape for design elements and indicators',
-  icon: <CircleIcon className="h-4 w-4" />,
+  icon: 'CircleIcon',
   defaultWidth: 100,
   defaultHeight: 100,
   minWidth: 40,

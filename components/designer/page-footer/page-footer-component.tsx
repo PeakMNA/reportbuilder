@@ -87,5 +87,5 @@ export const PAGE_FOOTER_COMPONENT_TYPE: ComponentType = {
   description: 'Repeating footer content with page numbers and metadata',
   category: 'Layout',
   icon: 'Footer',
-  defaultProperties: DEFAULT_PAGE_FOOTER_PROPERTIES
+  defaultProperties: DEFAULT_PAGE_FOOTER_PROPERTIES as unknown as Record<string, unknown>
 };

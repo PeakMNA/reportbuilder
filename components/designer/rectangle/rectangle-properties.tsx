@@ -202,6 +202,5 @@ export const RECTANGLE_PROPERTY_CONFIG: PropertyConfig<RectangleProperties> = {
     description: 'Basic rectangle shape for layouts and design elements',
     category: 'Shapes',
     priority: 5,
-    migrationNotes: 'Migrated from legacy system - enhanced with width/height controls'
   }
 };

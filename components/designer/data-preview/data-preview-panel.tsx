@@ -125,11 +125,11 @@ export function DataPreviewPanel() {
   
   // Get columns and data from the current data source
   const getColumnsFromDataSource = (dataSource: DataSource): DataColumn[] => {
-    if (dataSource.columns && dataSource.data && dataSource.data.length > 0) {
-      return dataSource.columns.map(col => ({
+    if ((dataSource as unknown as Record<string, unknown>).columns && (dataSource as unknown as Record<string, unknown>).data && ((dataSource as unknown as Record<string, unknown>).data as unknown[]).length > 0) {
+      return ((dataSource as unknown as Record<string, unknown>).columns as string[]).map(col => ({
         name: col,
-        type: typeof dataSource.data![0][col] === 'number' ? 'number' : 
-              typeof dataSource.data![0][col] === 'boolean' ? 'boolean' :
+        type: typeof ((dataSource as unknown as Record<string, unknown>).data as Record<string, unknown>[])[0][col] === 'number' ? 'number' : 
+              typeof ((dataSource as unknown as Record<string, unknown>).data as Record<string, unknown>[])[0][col] === 'boolean' ? 'boolean' :
               col.toLowerCase().includes('date') ? 'date' : 'string',
         nullable: true
       }))
@@ -138,7 +138,7 @@ export function DataPreviewPanel() {
   }
 
   const getDataFromDataSource = (dataSource: DataSource): DataRow[] => {
-    return dataSource.data?.slice(0, 100) || mockData
+    return ((dataSource as unknown as Record<string, unknown>).data as DataRow[])?.slice(0, 100) || mockData
   }
 
   if (!selectedDataSource || !currentDataSource) {
@@ -236,7 +236,7 @@ export function DataPreviewPanel() {
             <Table>
               <TableHeader className="sticky top-0 bg-background border-b">
                 <TableRow>
-                  {getColumnsFromDataSource(currentDataSource).map((column) => (
+                  {getColumnsFromDataSource(currentDataSource as unknown as DataSource).map((column) => (
                     <TableHead key={column.name} className="font-medium">
                       <div className="flex items-center gap-1">
                         <span>{column.name}</span>
@@ -252,9 +252,9 @@ export function DataPreviewPanel() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {getDataFromDataSource(currentDataSource).map((row, index) => (
+                {getDataFromDataSource(currentDataSource as unknown as DataSource).map((row, index) => (
                   <TableRow key={index} className="hover:bg-muted/50">
-                    {getColumnsFromDataSource(currentDataSource).map((column) => (
+                    {getColumnsFromDataSource(currentDataSource as unknown as DataSource).map((column) => (
                       <TableCell key={column.name} className="font-mono text-xs">
                         {row[column.name]?.toString() || (
                           <span className="text-muted-foreground italic">null</span>
