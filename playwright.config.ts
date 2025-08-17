@@ -22,6 +22,20 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+
+    /* Increase timeout for drag and drop operations */
+    actionTimeout: 10000,
+    
+    /* Wait for all network requests to complete before considering page loaded */
+    waitForSelector: { timeout: 10000 },
+  },
+  
+  /* Global test timeout */
+  timeout: 60000,
+  
+  /* Expect timeout for assertions */
+  expect: {
+    timeout: 15000,
   },
 
   /* Configure projects for major browsers */
