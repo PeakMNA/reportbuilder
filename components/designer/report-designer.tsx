@@ -564,7 +564,9 @@ export function ReportDesigner() {
               <ResizablePanelGroup direction="horizontal" className="h-full">
                 {/* Component Palette */}
                 <ResizablePanel defaultSize={showWorkflow ? 18 : 20} minSize={15} maxSize={30}>
-                  <ComponentPalette />
+                  <div data-testid="component-palette">
+                    <ComponentPalette />
+                  </div>
                 </ResizablePanel>
 
                 <ResizableHandle withHandle />
@@ -574,7 +576,7 @@ export function ReportDesigner() {
                   <ResizablePanelGroup direction="vertical" className="h-full">
                     {/* Design Canvas */}
                     <ResizablePanel defaultSize={showDataPreview ? 75 : 100} minSize={50}>
-                      <div ref={canvasElementRef}>
+                      <div ref={canvasElementRef} data-testid="design-canvas">
                         <DesignCanvas 
                           ref={canvasRef}
                           selectedComponent={selectedComponent}
@@ -630,11 +632,13 @@ export function ReportDesigner() {
 
                 {/* Properties Panel */}
                 <ResizablePanel defaultSize={showWorkflow ? 20 : 25} minSize={15} maxSize={35}>
-                  <PropertiesPanel 
-                    selectedComponent={selectedComponent}
-                    componentData={selectedComponentData}
-                    onPropertyUpdate={handlePropertyUpdate}
-                  />
+                  <div data-testid="properties-panel">
+                    <PropertiesPanel 
+                      selectedComponent={selectedComponent}
+                      componentData={selectedComponentData}
+                      onPropertyUpdate={handlePropertyUpdate}
+                    />
+                  </div>
                 </ResizablePanel>
               </ResizablePanelGroup>
             </div>
