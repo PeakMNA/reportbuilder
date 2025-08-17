@@ -193,6 +193,5 @@ export const IMAGE_PROPERTY_CONFIG: PropertyConfig<ImageProperties> = {
     description: 'Image component for displaying static or dynamic images with responsive sizing',
     category: 'Media',
     priority: 15,
-    migrationNotes: 'Migrated from legacy system - property count optimized by 50%'
   }
 };

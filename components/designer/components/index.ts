@@ -32,7 +32,6 @@ export type {
 // Re-export registry system
 export {
   COMPONENT_TYPES,
-  PROPERTY_CONFIGS,
   COMPONENT_CATEGORIES,
   getComponentType,
   getPropertyConfig,
