@@ -13,6 +13,7 @@ import { PropertiesPanel } from './properties/properties-panel'
 import { DataPreviewPanel } from './data-preview/data-preview-panel'
 import { ClientWrapper } from './client-wrapper'
 import { DataBindingProvider } from './data-binding/data-binding-context'
+import { WorkflowManager } from './workflow/workflow-manager'
 import { 
   useCommandSystem, 
   useUndoRedoShortcuts,
@@ -36,6 +37,7 @@ interface Component {
 export function ReportDesigner() {
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null)
   const [showDataPreview, setShowDataPreview] = useState(true)
+  const [showWorkflow, setShowWorkflow] = useState(false)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [draggedComponent, setDraggedComponent] = useState<{ type: string; component: { id: string; name: string; description: string; icon: ReactNode; popular?: boolean } } | null>(null)
   const [selectedComponentData, setSelectedComponentData] = useState<Component | null>(null)
@@ -53,6 +55,7 @@ export function ReportDesigner() {
     enablePersistence: true,
     persistenceKey: 'reportbuilder_undo_redo'
   })
+  
 
   // Enable keyboard shortcuts for undo/redo
   useUndoRedoShortcuts(commandSystem)
@@ -264,7 +267,14 @@ export function ReportDesigner() {
     canvasRef.current.clearComponents()
     setSelectedComponent(null)
     setCurrentComponents([])
-    commandSystem.clear()
+    
+    // Clear command history safely
+    if (commandSystem && typeof commandSystem.clearHistory === 'function') {
+      commandSystem.clearHistory()
+    } else {
+      console.error('CommandSystem clearHistory method not available:', commandSystem)
+    }
+    
     setReportTitle('Untitled Report')
     setHasUnsavedChanges(false)
   }, [commandSystem])
@@ -536,6 +546,8 @@ export function ReportDesigner() {
             <DesignerHeader 
               onToggleDataPreview={() => setShowDataPreview(!showDataPreview)}
               showDataPreview={showDataPreview}
+              showWorkflow={showWorkflow}
+              onToggleWorkflow={() => setShowWorkflow(!showWorkflow)}
               canvasRef={canvasElementRef}
               reportTitle={reportTitle}
               currentComponents={currentComponents}
@@ -551,14 +563,14 @@ export function ReportDesigner() {
             <div className="flex-1 overflow-hidden">
               <ResizablePanelGroup direction="horizontal" className="h-full">
                 {/* Component Palette */}
-                <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
+                <ResizablePanel defaultSize={showWorkflow ? 18 : 20} minSize={15} maxSize={30}>
                   <ComponentPalette />
                 </ResizablePanel>
 
                 <ResizableHandle withHandle />
 
                 {/* Center Panel Group (Canvas + Data Preview) */}
-                <ResizablePanel defaultSize={55} minSize={40}>
+                <ResizablePanel defaultSize={showWorkflow ? 37 : 55} minSize={30}>
                   <ResizablePanelGroup direction="vertical" className="h-full">
                     {/* Design Canvas */}
                     <ResizablePanel defaultSize={showDataPreview ? 75 : 100} minSize={50}>
@@ -600,8 +612,24 @@ export function ReportDesigner() {
 
                 <ResizableHandle withHandle />
 
+                {/* Workflow Panel */}
+                {showWorkflow && (
+                  <>
+                    <ResizablePanel defaultSize={25} minSize={20} maxSize={35}>
+                      <WorkflowManager 
+                        canvasRef={canvasElementRef}
+                        components={currentComponents}
+                        onComponentUpdate={updateComponentWithCommand}
+                        onLoadTemplate={handleLoadTemplate}
+                        reportTitle={reportTitle}
+                      />
+                    </ResizablePanel>
+                    <ResizableHandle withHandle />
+                  </>
+                )}
+
                 {/* Properties Panel */}
-                <ResizablePanel defaultSize={25} minSize={20} maxSize={35}>
+                <ResizablePanel defaultSize={showWorkflow ? 20 : 25} minSize={15} maxSize={35}>
                   <PropertiesPanel 
                     selectedComponent={selectedComponent}
                     componentData={selectedComponentData}

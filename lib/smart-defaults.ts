@@ -6,25 +6,25 @@
 export interface SmartDefaultConfig {
   componentType: string;
   propertyKey: string;
-  defaultValue: any;
-  commonValues: { value: any; usage: number }[];
-  contextualDefaults?: Record<string, any>;
+  defaultValue: unknown;
+  commonValues: { value: unknown; usage: number }[];
+  contextualDefaults?: Record<string, unknown>;
   category: 'core' | 'style' | 'data';
   priority: number; // Higher numbers = more important
 }
 
 export interface UserPreferences {
   userId?: string;
-  componentPreferences: Record<string, Record<string, any>>;
-  lastUsedValues: Record<string, any>;
+  componentPreferences: Record<string, Record<string, unknown>>;
+  lastUsedValues: Record<string, unknown>;
   preferenceWeights: Record<string, number>;
 }
 
 export interface DefaultRecommendation {
-  value: any;
+  value: unknown;
   confidence: number; // 0-1
   reason: 'default' | 'common' | 'user_preference' | 'contextual';
-  fallbackValue?: any;
+  fallbackValue?: unknown;
 }
 
 /**
@@ -380,14 +380,14 @@ export class SmartDefaults {
    * Get all defaults for a component type, organized by category
    */
   public getComponentDefaults(componentType: string): {
-    core: Record<string, any>;
-    style: Record<string, any>;
-    data: Record<string, any>;
+    core: Record<string, unknown>;
+    style: Record<string, unknown>;
+    data: Record<string, unknown>;
   } {
     const result = {
-      core: {} as Record<string, any>,
-      style: {} as Record<string, any>,
-      data: {} as Record<string, any>
+      core: {} as Record<string, unknown>,
+      style: {} as Record<string, unknown>,
+      data: {} as Record<string, unknown>
     };
 
     this.defaults.forEach((config, key) => {
@@ -407,7 +407,7 @@ export class SmartDefaults {
   private getUserPreference(
     componentType: string, 
     propertyKey: string
-  ): { value: any; confidence: number } | null {
+  ): { value: unknown; confidence: number } | null {
     const componentPrefs = this.userPreferences.componentPreferences[componentType];
     if (!componentPrefs || !componentPrefs[propertyKey]) {
       return null;
@@ -423,7 +423,7 @@ export class SmartDefaults {
   /**
    * Record user's property usage to improve future recommendations
    */
-  public recordUsage(componentType: string, propertyKey: string, value: any): void {
+  public recordUsage(componentType: string, propertyKey: string, value: unknown): void {
     // Update user preferences
     if (!this.userPreferences.componentPreferences[componentType]) {
       this.userPreferences.componentPreferences[componentType] = {};
@@ -447,13 +447,13 @@ export class SmartDefaults {
     property: string;
     category: 'core' | 'style' | 'data';
     priority: number;
-    defaultValue: any;
+    defaultValue: unknown;
   }[] {
     const properties: {
       property: string;
       category: 'core' | 'style' | 'data';
       priority: number;
-      defaultValue: any;
+      defaultValue: unknown;
     }[] = [];
 
     this.defaults.forEach((config, key) => {
@@ -478,7 +478,7 @@ export class SmartDefaults {
   public isUsingDefault(
     componentType: string, 
     propertyKey: string, 
-    currentValue: any
+    currentValue: unknown
   ): boolean {
     const recommendation = this.getDefault(componentType, propertyKey);
     return recommendation.value === currentValue;
@@ -491,7 +491,7 @@ export class SmartDefaults {
     componentType: string, 
     propertyKey: string, 
     context?: string
-  ): any {
+  ): unknown {
     const recommendation = this.getDefault(componentType, propertyKey, context);
     return recommendation.value;
   }
