@@ -23,7 +23,7 @@ export const RECTANGLE_COMPONENT_TYPE: ComponentType = {
   name: 'Rectangle',
   category: 'Shapes',
   description: 'Basic rectangle shape for layouts and design elements',
-  icon: <Square className="h-4 w-4" />,
+  icon: 'Square',
   defaultWidth: 150,
   defaultHeight: 100,
   minWidth: 50,

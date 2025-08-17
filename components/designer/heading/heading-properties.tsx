@@ -192,6 +192,5 @@ export const HEADING_PROPERTY_CONFIG: PropertyConfig<HeadingProperties> = {
     description: 'Semantic heading component with proper hierarchy levels',
     category: 'Text',
     priority: 12,
-    migrationNotes: 'Migrated from legacy system - improved semantic structure and organization'
   }
 };

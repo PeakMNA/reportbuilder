@@ -11,7 +11,7 @@ export const FORMULA_PROPERTY_CONFIG: PropertyConfig<FormulaProperties> = {
       properties: [
         {
           key: 'expression',
-          type: 'formula',
+          type: 'textarea',
           label: 'Expression',
           description: 'Mathematical/logical formula to calculate'
         },

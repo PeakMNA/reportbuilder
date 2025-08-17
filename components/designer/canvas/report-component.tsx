@@ -641,7 +641,7 @@ export function ReportComponent({
       }}
       data-canvas-component="true"
       data-component-id={component.id}
-      className={`absolute border-2 ${
+      className={`component absolute border-2 ${
         selected 
           ? 'border-primary shadow-lg ring-2 ring-primary/20' 
           : 'border-transparent hover:border-primary/50'

@@ -148,7 +148,6 @@ export const CIRCLE_PROPERTY_CONFIG: PropertyConfig<CircleProperties> = {
     version: '2.0.0',
     description: 'Basic circular shape for design elements and status indicators',
     category: 'Shapes',
-    priority: 4,
-    migrationNotes: 'Migrated from legacy system - simplified to 4 essential properties'
+    priority: 4
   }
 };

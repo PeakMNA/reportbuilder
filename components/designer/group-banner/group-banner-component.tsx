@@ -99,5 +99,5 @@ export const GROUP_BANNER_COMPONENT_TYPE: ComponentType = {
   description: 'Section header for data groupings',
   category: 'Layout',
   icon: 'Flag',
-  defaultProperties: DEFAULT_GROUP_BANNER_PROPERTIES
+  defaultProperties: DEFAULT_GROUP_BANNER_PROPERTIES as unknown as Record<string, unknown>
 };
