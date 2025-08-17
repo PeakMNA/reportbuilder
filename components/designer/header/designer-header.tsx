@@ -152,6 +152,7 @@ export function DesignerHeader({
             disabled={!commandSystem?.canUndo}
             onClick={() => commandSystem?.undo()}
             title="Undo (Ctrl+Z)"
+            aria-label="Undo last action"
           >
             <Undo className="h-4 w-4" />
           </Button>
@@ -161,6 +162,7 @@ export function DesignerHeader({
             disabled={!commandSystem?.canRedo}
             onClick={() => commandSystem?.redo()}
             title="Redo (Ctrl+Y)"
+            aria-label="Redo last undone action"
           >
             <Redo className="h-4 w-4" />
           </Button>
@@ -168,18 +170,18 @@ export function DesignerHeader({
           <Separator orientation="vertical" className="h-4" />
           
           <div className="flex items-center space-x-1">
-            <Button variant="ghost" size="sm" onClick={handleZoomOut}>
+            <Button variant="ghost" size="sm" onClick={handleZoomOut} aria-label="Zoom out">
               <ZoomOut className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleZoomReset}>
+            <Button variant="ghost" size="sm" onClick={handleZoomReset} aria-label="Reset zoom to 100%">
               <span className="text-sm font-mono w-12 text-center">{zoomLevel}%</span>
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleZoomIn}>
+            <Button variant="ghost" size="sm" onClick={handleZoomIn} aria-label="Zoom in">
               <ZoomIn className="h-4 w-4" />
             </Button>
           </div>
 
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" aria-label="Toggle grid">
             <Grid3X3 className="h-4 w-4" />
           </Button>
         </div>
@@ -235,7 +237,7 @@ export function DesignerHeader({
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" aria-label="Open user menu">
               <User className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

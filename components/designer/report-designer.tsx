@@ -542,6 +542,8 @@ export function ReportDesigner() {
           }}
         >
           <div className="flex h-screen flex-col bg-background">
+            {/* Screen reader heading for accessibility */}
+            <h1 className="sr-only">ReportBuilder Designer Interface</h1>
             {/* Header Navigation */}
             <DesignerHeader 
               onToggleDataPreview={() => setShowDataPreview(!showDataPreview)}
@@ -560,11 +562,11 @@ export function ReportDesigner() {
             />
 
             {/* Main Layout */}
-            <div className="flex-1 overflow-hidden">
+            <main className="flex-1 overflow-hidden" role="main">
               <ResizablePanelGroup direction="horizontal" className="h-full">
                 {/* Component Palette */}
                 <ResizablePanel defaultSize={showWorkflow ? 18 : 20} minSize={15} maxSize={30}>
-                  <div data-testid="component-palette">
+                  <div data-testid="component-palette" role="complementary" aria-label="Component Palette">
                     <ComponentPalette />
                   </div>
                 </ResizablePanel>
@@ -576,7 +578,7 @@ export function ReportDesigner() {
                   <ResizablePanelGroup direction="vertical" className="h-full">
                     {/* Design Canvas */}
                     <ResizablePanel defaultSize={showDataPreview ? 75 : 100} minSize={50}>
-                      <div ref={canvasElementRef} data-testid="design-canvas">
+                      <div ref={canvasElementRef} data-testid="design-canvas" role="application" aria-label="Report Design Canvas">
                         <DesignCanvas 
                           ref={canvasRef}
                           selectedComponent={selectedComponent}
@@ -632,7 +634,7 @@ export function ReportDesigner() {
 
                 {/* Properties Panel */}
                 <ResizablePanel defaultSize={showWorkflow ? 20 : 25} minSize={15} maxSize={35}>
-                  <div data-testid="properties-panel">
+                  <div data-testid="properties-panel" role="complementary" aria-label="Properties Panel">
                     <PropertiesPanel 
                       selectedComponent={selectedComponent}
                       componentData={selectedComponentData}
