@@ -8,9 +8,7 @@ import { Card } from '@/components/ui/card'
 import { 
   Plus,
   FileText,
-  Database,
-  ZoomIn,
-  ZoomOut
+  Database
 } from 'lucide-react'
 import { GridOverlay } from './grid-overlay'
 import { ReportComponent } from './report-component'
@@ -19,8 +17,10 @@ interface DesignCanvasProps {
   selectedComponent: string | null
   onSelectComponent: (id: string | null) => void
   onDeleteComponent?: (id: string) => void
-  onUpdate?: (id: string, updates: Partial<Component>) => void
+  onDragEnd?: (id: string, oldPosition: { x: number; y: number }, newPosition: { x: number; y: number }) => void
   updateTrigger?: number // Force re-render trigger
+  zoomLevel: number // External zoom control
+  onZoomChange: (level: number) => void
 }
 
 export interface DesignCanvasRef {
@@ -45,15 +45,48 @@ export interface Component {
   properties: Record<string, string | number | boolean | string[] | null>
 }
 
-export const DesignCanvas = forwardRef<DesignCanvasRef, DesignCanvasProps>(
-  ({ selectedComponent, onSelectComponent, onDeleteComponent, onUpdate, updateTrigger }, ref) => {
+export const DesignCanvasClean = forwardRef<DesignCanvasRef, DesignCanvasProps>(
+  ({ selectedComponent, onSelectComponent, onDeleteComponent, onDragEnd, updateTrigger, zoomLevel, onZoomChange }, ref) => {
   const [components, setComponents] = useState<Component[]>([])
-  const [zoomLevel, setZoomLevel] = useState(100)
   const [showGrid, setShowGrid] = useState(true)
   const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null)
   const [showSnapIndicator, setShowSnapIndicator] = useState(false)
   const [forceRenderKey, setForceRenderKey] = useState(0)
+  const [initialized, setInitialized] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
+
+  // Debug logging for canvas state - mount only once
+  useEffect(() => {
+    console.log('🏗️ DesignCanvasClean mounted, components:', components.length)
+    
+    // TEMPORARY: Add a test component for debugging drag functionality - only once
+    if (!initialized && components.length === 0) {
+      const testComponent: Component = {
+        id: 'test-text-123',
+        type: 'text',
+        name: 'Test Text',
+        x: 100,
+        y: 100,
+        width: 200,
+        height: 40,
+        properties: {
+          content: 'Test Component - Try to drag me!',
+          fontSize: 14,
+          fontWeight: 'normal',
+          color: '#000000',
+          alignment: 'left'
+        }
+      }
+      
+      console.log('🧪 Adding test component for drag testing:', testComponent)
+      setComponents([testComponent])
+      setInitialized(true)
+    }
+  }, []) // Empty dependency array - only run once
+
+  useEffect(() => {
+    console.log('📊 DesignCanvasClean components changed:', { count: components.length, components: components.map(c => ({ id: c.id, x: c.x, y: c.y })) })
+  }, [components])
 
   const {
     isOver,
@@ -64,17 +97,6 @@ export const DesignCanvas = forwardRef<DesignCanvasRef, DesignCanvasProps>(
       type: 'canvas',
     },
   })
-
-  const handleDragEnd = (id: string, oldPosition: { x: number; y: number }, newPosition: { x: number; y: number }) => {
-    setComponents(prev => {
-      return prev.map(comp => {
-        if (comp.id === id) {
-          return { ...comp, x: newPosition.x, y: newPosition.y };
-        }
-        return comp;
-      });
-    });
-  };
 
   // Track mouse position for snap indicators
   useEffect(() => {
@@ -97,11 +119,10 @@ export const DesignCanvas = forwardRef<DesignCanvasRef, DesignCanvasProps>(
         const mouseX = event.clientX - canvasRect.left
         const mouseY = event.clientY - canvasRect.top
         
-        // Calculate snap position (same logic as getDropPosition)
+        // Calculate snap position with zoom compensation
         const gridSize = 19
-        const zoomLevel = parseFloat(canvasRef.current.style.transform.match(/scale\(([^)]+)\)/)?.[1] || '1')
-        const adjustedX = mouseX / zoomLevel
-        const adjustedY = mouseY / zoomLevel
+        const adjustedX = mouseX / (zoomLevel / 100)
+        const adjustedY = mouseY / (zoomLevel / 100)
         const snappedX = Math.round(adjustedX / gridSize) * gridSize
         const snappedY = Math.round(adjustedY / gridSize) * gridSize
         
@@ -128,7 +149,7 @@ export const DesignCanvas = forwardRef<DesignCanvasRef, DesignCanvasProps>(
         setDragPosition(null)
       }
     }
-  }, [isOver])
+  }, [isOver, zoomLevel])
 
   const handleCanvasClick = (event: React.MouseEvent) => {
     // If clicking on the canvas background, deselect all components
@@ -137,18 +158,26 @@ export const DesignCanvas = forwardRef<DesignCanvasRef, DesignCanvasProps>(
     }
   }
 
+  // Simple, direct component update - no command system here
   const updateComponent = useCallback((id: string, updates: Partial<Component>) => {
-    console.log('📝 DesignCanvas updateComponent called:', { id, updates, timestamp: Date.now() })
+    console.log('📝 DesignCanvasClean updateComponent START:', { id, updates, timestamp: Date.now() })
     setComponents(prev => {
+      const oldComponent = prev.find(c => c.id === id)
       const updated = prev.map(comp => comp.id === id ? { ...comp, ...updates } : comp)
-      console.log('📝 Component state updated:', { 
-        oldComponent: prev.find(c => c.id === id), 
-        newComponent: updated.find(c => c.id === id) 
+      const newComponent = updated.find(c => c.id === id)
+      
+      console.log('🔄 Component update details:', { 
+        id, 
+        oldPos: oldComponent ? { x: oldComponent.x, y: oldComponent.y } : 'not found',
+        newPos: newComponent ? { x: newComponent.x, y: newComponent.y } : 'not found',
+        updates,
+        timestamp: Date.now()
       })
+      
       return updated
     })
-    // Force re-render to ensure visual update
     setForceRenderKey(prev => prev + 1)
+    console.log('✅ DesignCanvasClean updateComponent COMPLETE:', { id, timestamp: Date.now() })
   }, [])
 
   const forceUpdate = useCallback(() => {
@@ -336,30 +365,8 @@ export const DesignCanvas = forwardRef<DesignCanvasRef, DesignCanvasProps>(
     }
   }
 
-
   return (
     <div className="relative h-full bg-canvas-bg overflow-hidden">
-      {/* Zoom Controls */}
-      <div className="absolute top-4 right-4 z-10 flex items-center gap-1 bg-background border rounded-lg p-1">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setZoomLevel(prev => Math.max(prev - 25, 25))}
-        >
-          <ZoomOut className="h-4 w-4" />
-        </Button>
-        <span className="text-sm font-mono px-2 min-w-[50px] text-center">
-          {zoomLevel}%
-        </span>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setZoomLevel(prev => Math.min(prev + 25, 400))}
-        >
-          <ZoomIn className="h-4 w-4" />
-        </Button>
-      </div>
-
       <ScrollArea className="h-full w-full">
         <div className="p-8 min-h-full flex justify-center">
           <div
@@ -368,6 +375,7 @@ export const DesignCanvas = forwardRef<DesignCanvasRef, DesignCanvasProps>(
               setDroppableRef(node)
             }}
             data-canvas="true"
+            data-zoom={zoomLevel}
             className="relative bg-white shadow-lg"
             style={{
               width: '210mm',
@@ -423,13 +431,15 @@ export const DesignCanvas = forwardRef<DesignCanvasRef, DesignCanvasProps>(
                 selected={selectedComponent === component.id}
                 onSelect={() => onSelectComponent(component.id)}
                 onUpdate={(id, updates) => {
-                  console.log('🔗 DesignCanvas onUpdate callback called from ReportComponent:', { id, updates, timestamp: Date.now() })
-                  // For immediate visual feedback during drag, always use internal updateComponent first
+                  console.log('🔗 DesignCanvasClean onUpdate from ReportComponent:', { id, updates })
                   updateComponent(id, updates)
-                  console.log('✅ DesignCanvas applied immediate visual update')
                 }}
-                onDragEnd={handleDragEnd}
+                onDragEnd={onDragEnd ? (id, oldPos, newPos) => {
+                  console.log('🏁 DesignCanvasClean onDragEnd:', { id, oldPos, newPos })
+                  onDragEnd(id, oldPos, newPos)
+                } : undefined}
                 onDelete={deleteComponent}
+                zoomLevel={zoomLevel}
               />
             ))}
 
@@ -463,4 +473,4 @@ export const DesignCanvas = forwardRef<DesignCanvasRef, DesignCanvasProps>(
   )
 })
 
-DesignCanvas.displayName = 'DesignCanvas'
+DesignCanvasClean.displayName = 'DesignCanvasClean'

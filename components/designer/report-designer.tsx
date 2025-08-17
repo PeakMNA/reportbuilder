@@ -3,11 +3,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import type { ReactNode } from 'react'
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core'
+import { MouseSensor, TouchSensor } from '@dnd-kit/core'
 import { snapCenterToCursor } from '@dnd-kit/modifiers'
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable'
 import { DesignerHeader } from './header/designer-header'
 import { ComponentPalette } from './palette/component-palette'
-import { DesignCanvas, DesignCanvasRef } from './canvas/design-canvas'
+import { DesignCanvasClean as DesignCanvas, DesignCanvasRef } from './canvas/design-canvas-clean'
 import { PropertiesPanel } from './properties/properties-panel'
 import { DataPreviewPanel } from './data-preview/data-preview-panel'
 import { ClientWrapper } from './client-wrapper'
@@ -56,13 +57,58 @@ export function ReportDesigner() {
   // Enable keyboard shortcuts for undo/redo
   useUndoRedoShortcuts(commandSystem)
 
-  // Sync current components with canvas
+  // Sync current components with canvas (moved here to avoid hoisting issues)
   const updateCurrentComponents = useCallback(() => {
     if (canvasRef.current) {
       const allComponents = canvasRef.current.getAllComponents()
       setCurrentComponents(allComponents)
     }
   }, [])
+
+  // Delete component function (moved here to avoid hoisting issues)
+  const deleteComponentWithCommand = useCallback((componentId: string) => {
+    if (!canvasRef.current) return
+
+    const component = canvasRef.current.getComponent(componentId)
+    if (!component) return
+
+    const command = new DeleteComponentCommand(
+      component,
+      (id) => {
+        if (canvasRef.current) {
+          canvasRef.current.deleteComponent(id)
+          if (selectedComponent === id) {
+            setSelectedComponent(null)
+          }
+          updateCurrentComponents()
+        }
+      },
+      (restoredComponent) => {
+        if (canvasRef.current) {
+          canvasRef.current.addComponent(restoredComponent.type, { x: restoredComponent.x, y: restoredComponent.y })
+          updateCurrentComponents()
+        }
+      }
+    )
+
+    commandSystem.executeCommand(command)
+  }, [canvasRef, selectedComponent, commandSystem, updateCurrentComponents])
+
+  // Add Delete key handler
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        if (selectedComponent) {
+          event.preventDefault()
+          deleteComponentWithCommand(selectedComponent)
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedComponent, deleteComponentWithCommand])
+
 
   // Update selected component data when selection changes
   const updateSelectedComponentData = useCallback(() => {
@@ -117,39 +163,21 @@ export function ReportDesigner() {
     commandSystem.executeCommand(command)
   }, [currentComponents.length, commandSystem, updateCurrentComponents])
 
-  const deleteComponentWithCommand = useCallback((componentId: string) => {
-    if (!canvasRef.current) return
-
-    const component = canvasRef.current.getComponent(componentId)
-    if (!component) return
-
-    const command = new DeleteComponentCommand(
-      component,
-      (id) => {
-        if (canvasRef.current) {
-          canvasRef.current.deleteComponent(id)
-          if (selectedComponent === id) {
-            setSelectedComponent(null)
-          }
-          updateCurrentComponents()
-        }
-      },
-      (restoredComponent) => {
-        if (canvasRef.current) {
-          canvasRef.current.addComponent(restoredComponent.type, { x: restoredComponent.x, y: restoredComponent.y })
-          updateCurrentComponents()
-        }
-      }
-    )
-
-    commandSystem.executeCommand(command)
-  }, [canvasRef, selectedComponent, commandSystem, updateCurrentComponents])
-
   const updateComponentWithCommand = useCallback((id: string, newData: Partial<Component>) => {
-    if (!canvasRef.current) return
+    console.log('🔧 updateComponentWithCommand called:', { id, newData, timestamp: Date.now() })
+    
+    if (!canvasRef.current) {
+      console.log('❌ updateComponentWithCommand: canvasRef.current is null')
+      return
+    }
 
     const currentComponent = canvasRef.current.getComponent(id)
-    if (!currentComponent) return
+    if (!currentComponent) {
+      console.log('❌ updateComponentWithCommand: component not found:', id)
+      return
+    }
+
+    console.log('✅ updateComponentWithCommand: found component:', currentComponent)
 
     // Create old data for undo
     const oldData: Partial<Component> = {}
@@ -162,15 +190,20 @@ export function ReportDesigner() {
       oldData,
       newData,
       (componentId, data) => {
+        console.log('🎯 updateComponentWithCommand executing command:', { componentId, data })
         if (canvasRef.current) {
           canvasRef.current.updateComponent(componentId, data)
           updateSelectedComponentData()
           updateCurrentComponents()
           forceCanvasUpdate() // Force visual update
+          console.log('✅ updateComponentWithCommand command executed successfully')
+        } else {
+          console.log('❌ updateComponentWithCommand command execution: canvasRef.current is null')
         }
       }
     )
 
+    console.log('🚀 updateComponentWithCommand executing command via commandSystem')
     commandSystem.executeCommand(command)
   }, [commandSystem, updateCurrentComponents, updateSelectedComponentData, forceCanvasUpdate])
 
@@ -198,11 +231,16 @@ export function ReportDesigner() {
     }
   }
 
-  // Configure drag sensors
+  // Configure drag sensors with minimal constraints for testing
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // 8px minimum drag distance before activation
+        distance: 1, // Minimal distance for immediate activation
+      },
+    }),
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 1, // Minimal distance for immediate activation
       },
     })
   )
@@ -312,53 +350,102 @@ export function ReportDesigner() {
     const activeId = event.active.id as string
     const dragData = event.active.data.current
     
-    console.log('Drag started:', { activeId, dragData })
+    console.log('DND Drag started:', { activeId, dragData })
     
-    setActiveId(activeId)
-    setDraggedComponent(dragData as { type: string; component: { id: string; name: string; description: string; icon: ReactNode; popular?: boolean } } | null)
+    // Handle palette component drags
+    if (dragData && dragData.type === 'component') {
+      console.log('✅ DND handling palette component drag')
+      setActiveId(activeId)
+      setDraggedComponent(dragData as { type: string; component: { id: string; name: string; description: string; icon: ReactNode; popular?: boolean } } | null)
+      return
+    }
+    
+    // Handle canvas component drags
+    if (dragData && dragData.type === 'canvas-component') {
+      console.log('✅ DND handling canvas component drag:', activeId)
+      setActiveId(activeId)
+      setDraggedComponent(null) // No visual drag overlay for canvas components
+      return
+    }
+    
+    console.log('⛔ Ignoring drag - unknown type')
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    const dragData = active.data.current
+    
+    console.log('DND Drag ended:', { activeId: active.id, over: over?.id, dragData })
+    
     setActiveId(null)
     setDraggedComponent(null)
     
-    const { active, over } = event
-    
-    if (over && over.id === 'canvas' && active.data.current) {
-      const componentData = active.data.current
+    // Handle palette component drop
+    if (over && over.id === 'canvas' && dragData && dragData.type === 'component') {
+      console.log('✅ DND handling palette component drop')
+      // Calculate drop position
+      const dropPosition = getDropPosition(event)
       
-      // Check if this is a component being dragged from the palette
-      if (componentData.type === 'component' && componentData.component) {
-        // Calculate drop position
-        const dropPosition = getDropPosition(event)
-        
-        // Add component to canvas using command system
-        if (dropPosition) {
-          addComponentWithCommand(componentData.component.id, dropPosition)
-        }
+      // Add component to canvas using command system
+      if (dropPosition && dragData.component) {
+        addComponentWithCommand(dragData.component.id, dropPosition)
       }
+      return
+    }
+    
+    // Handle canvas component drag end
+    if (dragData && dragData.type === 'canvas-component') {
+      console.log('✅ DND canvas component drag ended - handled by component itself')
+      // The component itself handles the position update via onDragEnd prop
+      return
     }
   }
 
   // Calculate drop position relative to canvas, accounting for zoom and scroll
   const getDropPosition = (event: DragEndEvent): { x: number; y: number } | null => {
+    // Find the actual A4 canvas element (the white paper area)
     const canvasElement = document.querySelector('[data-canvas="true"]') as HTMLElement
-    if (!canvasElement) return null
+    if (!canvasElement) {
+      console.warn('Canvas element not found for drop position')
+      return null
+    }
 
     const canvasRect = canvasElement.getBoundingClientRect()
     const zoomLevel = parseFloat(canvasElement.style.transform.match(/scale\\(([^)]+)\\)/)?.[1] || '1')
     
-    // Use the over event coordinates if available, otherwise fallback to activator
-    const clientX = event.over?.rect?.left ?? (event.activatorEvent as MouseEvent)?.clientX
-    const clientY = event.over?.rect?.top ?? (event.activatorEvent as MouseEvent)?.clientY
+    // Get mouse position from the over event which is more reliable for drop positioning
+    let mouseX = 0
+    let mouseY = 0
     
-    if (!clientX || !clientY) return { x: 50, y: 50 } // Default position
+    // Try to get the current mouse position from event.delta or use pointer coordinates
+    if (event.delta) {
+      // Get the activator position and add delta
+      const activatorEvent = event.activatorEvent as MouseEvent
+      if (activatorEvent) {
+        mouseX = activatorEvent.clientX + event.delta.x
+        mouseY = activatorEvent.clientY + event.delta.y
+      }
+    } else if (event.activatorEvent) {
+      // Fallback to activator event
+      const activatorEvent = event.activatorEvent as MouseEvent
+      mouseX = activatorEvent.clientX
+      mouseY = activatorEvent.clientY
+    } else {
+      // Last resort: generate a position that's not X=0
+      const existingComponents = canvasRef.current?.getAllComponents() || []
+      const offsetX = (existingComponents.length % 5) * 160 // Spread components horizontally
+      const offsetY = Math.floor(existingComponents.length / 5) * 120 // Stack rows
+      return { 
+        x: Math.min(offsetX, 600), 
+        y: Math.min(offsetY, 800) 
+      }
+    }
+
+    // Calculate position relative to the canvas
+    const dropX = mouseX - canvasRect.left
+    const dropY = mouseY - canvasRect.top
     
-    // Calculate position relative to canvas
-    const dropX = clientX - canvasRect.left
-    const dropY = clientY - canvasRect.top
-    
-    // Adjust for zoom level
+    // Adjust for zoom level (the canvas is scaled)
     const adjustedX = dropX / zoomLevel
     const adjustedY = dropY / zoomLevel
     
@@ -367,10 +454,27 @@ export function ReportDesigner() {
     const snappedX = Math.round(adjustedX / gridSize) * gridSize
     const snappedY = Math.round(adjustedY / gridSize) * gridSize
     
-    return { 
-      x: Math.max(0, snappedX), 
-      y: Math.max(0, snappedY) 
+    // Ensure position is within canvas bounds and not negative
+    // A4 dimensions: 210mm × 297mm ≈ 794px × 1123px at 96 DPI
+    const canvasWidth = 794
+    const canvasHeight = 1123
+    const componentWidth = 150
+    const componentHeight = 100
+    
+    const finalPosition = { 
+      x: Math.max(38, Math.min(snappedX, canvasWidth - componentWidth)), // Start at least 38px from left
+      y: Math.max(38, Math.min(snappedY, canvasHeight - componentHeight)) // Start at least 38px from top
     }
+    
+    console.log('Drop position calculation:', {
+      mousePos: { mouseX, mouseY },
+      canvasRect: { left: canvasRect.left, top: canvasRect.top },
+      dropRelative: { dropX, dropY },
+      adjusted: { adjustedX, adjustedY },
+      final: finalPosition
+    })
+    
+    return finalPosition
   }
 
   return (
@@ -416,8 +520,16 @@ export function ReportDesigner() {
         <DndContext 
           sensors={sensors}
           collisionDetection={closestCenter}
-          onDragStart={handleDragStart} 
-          onDragEnd={handleDragEnd}
+          onDragStart={(event) => {
+            console.log('🔍 DND Event captured:', event.active.id, event.active.data.current)
+            console.log('🔍 DND Event sensors:', sensors)
+            console.log('🔍 DND Event full:', event)
+            handleDragStart(event)
+          }} 
+          onDragEnd={(event) => {
+            console.log('🔍 DND End captured:', event.active.id)
+            handleDragEnd(event)
+          }}
         >
           <div className="flex h-screen flex-col bg-background">
             {/* Header Navigation */}
@@ -456,7 +568,20 @@ export function ReportDesigner() {
                           selectedComponent={selectedComponent}
                           onSelectComponent={setSelectedComponent}
                           onDeleteComponent={deleteComponentWithCommand}
+                          onDragEnd={(id, oldPos, newPos) => {
+                            console.log('🎯 ReportDesigner onDragEnd START:', { id, oldPos, newPos, timestamp: Date.now() })
+                            // Only create command if position actually changed
+                            if (oldPos.x !== newPos.x || oldPos.y !== newPos.y) {
+                              console.log('🎯 ReportDesigner calling updateComponentWithCommand:', { id, newPos })
+                              updateComponentWithCommand(id, newPos)
+                            } else {
+                              console.log('🎯 ReportDesigner onDragEnd: No position change, skipping command')
+                            }
+                            console.log('🎯 ReportDesigner onDragEnd COMPLETE:', { id, timestamp: Date.now() })
+                          }}
                           updateTrigger={updateTrigger}
+                          zoomLevel={zoomLevel}
+                          onZoomChange={handleZoomChange}
                         />
                       </div>
                     </ResizablePanel>

@@ -19,45 +19,27 @@ export function PropertyConfigRenderer({
   disabled = false,
   categoryFilter
 }: PropertyConfigRendererProps) {
+  // Map group titles to categories for filtering
+  const getCategoryFromTitle = (title: string): string => {
+    const titleLower = title.toLowerCase();
+    if (titleLower.includes('content') || titleLower.includes('text') || titleLower.includes('basic')) {
+      return 'core';
+    }
+    if (titleLower.includes('style') || titleLower.includes('appearance') || titleLower.includes('format')) {
+      return 'style';
+    }
+    if (titleLower.includes('data') || titleLower.includes('binding') || titleLower.includes('source')) {
+      return 'data';
+    }
+    return 'core'; // Default to core category
+  };
+
   // Filter groups by category if specified
   const filteredGroups = categoryFilter 
-    ? config.groups.filter(group => group.category === categoryFilter)
+    ? config.groups.filter(group => 
+        group.category === categoryFilter || getCategoryFromTitle(group.title) === categoryFilter
+      )
     : config.groups;
-
-  // If no groups match the category filter, render individual properties 
-  // that should be in that category
-  if (filteredGroups.length === 0 && categoryFilter) {
-    // For now, render properties inline without groups when category filtering
-    // This handles cases where properties haven't been properly categorized yet
-    const allProperties = config.groups.flatMap(g => g.properties);
-    
-    return (
-      <div className="space-y-3">
-        {allProperties.map((property, propertyIndex) => (
-          <PropertyInput
-            key={`${property.key}-${propertyIndex}`}
-            label={property.label}
-            type={property.type}
-            value={values[property.key]}
-            onChange={(value) => onValueChange(property.key, value)}
-            placeholder={property.placeholder}
-            suffix={property.suffix}
-            prefix={property.prefix}
-            min={property.min}
-            max={property.max}
-            step={property.step}
-            options={property.options}
-            disabled={disabled}
-            description={property.description}
-            helpText={property.helpText}
-            usageExample={property.usageExample}
-            constraints={property.constraints}
-            bestPractice={property.bestPractice}
-          />
-        ))}
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4">
