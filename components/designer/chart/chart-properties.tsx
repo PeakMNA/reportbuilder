@@ -212,7 +212,6 @@ export const CHART_PROPERTY_CONFIG: PropertyConfig<ChartProperties> = {
     version: '2.0.0',
     description: 'Chart component for data visualization with simplified configuration',
     category: 'Data',
-    priority: 20,
-    migrationNotes: 'Migrated from legacy system - property count optimized by 40%'
+    priority: 20
   }
 };

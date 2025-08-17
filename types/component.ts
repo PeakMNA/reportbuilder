@@ -6,7 +6,14 @@ export interface ComponentType {
   description: string;
   category: string;
   icon: string;
-  defaultProperties: Record<string, any>;
+  defaultProperties?: Record<string, unknown>;
+  defaultWidth?: number;
+  defaultHeight?: number;
+  minWidth?: number;
+  minHeight?: number;
+  maxWidth?: number;
+  maxHeight?: number;
+  previewImageUrl?: string;
 }
 
 // Re-export PropertyConfig for compatibility

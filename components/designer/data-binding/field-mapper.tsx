@@ -118,9 +118,9 @@ export function FieldMapper({
                     {getTypeIcon(field.type)}
                     <span className="text-xs font-medium">{field.name}</span>
                   </div>
-                  {field.sample && (
+                  {field.sample != null && (
                     <div className="text-xs text-muted-foreground mt-1">
-                      Sample: {String(field.sample).substring(0, 20)}...
+                      Sample: {String(field.sample as string | number).substring(0, 20)}...
                     </div>
                   )}
                 </div>

@@ -70,7 +70,7 @@ export class PropertyValidator implements PropertyConfigValidation {
   /**
    * Validates property types match expected types and constraints
    */
-  validatePropertyTypes(config: PropertyConfig, values: Record<string, any>): ValidationResult {
+  validatePropertyTypes(config: PropertyConfig, values: Record<string, unknown>): ValidationResult {
     const errors: ValidationResult['errors'] = [];
     const allProperties = config.groups.flatMap(group => group.properties);
 
@@ -113,7 +113,7 @@ export class PropertyValidator implements PropertyConfigValidation {
   /**
    * Validates that all required properties are present
    */
-  validateRequiredProperties(config: PropertyConfig, values: Record<string, any>): ValidationResult {
+  validateRequiredProperties(config: PropertyConfig, values: Record<string, unknown>): ValidationResult {
     const errors: ValidationResult['errors'] = [];
     const allProperties = config.groups.flatMap(group => group.properties);
     
@@ -155,7 +155,7 @@ export class PropertyValidator implements PropertyConfigValidation {
   /**
    * Validates custom business rules defined in the configuration
    */
-  validateCustomRules(config: PropertyConfig, values: Record<string, any>): ValidationResult {
+  validateCustomRules(config: PropertyConfig, values: Record<string, unknown>): ValidationResult {
     const errors: ValidationResult['errors'] = [];
 
     if (config.validation?.customValidators) {
@@ -190,7 +190,7 @@ export class PropertyValidator implements PropertyConfigValidation {
   /**
    * Runs complete validation suite on a property configuration
    */
-  validateComplete(config: PropertyConfig, values: Record<string, any>): ValidationResult {
+  validateComplete(config: PropertyConfig, values: Record<string, unknown>): ValidationResult {
     const results = [
       this.validatePropertyCount(config),
       this.validatePropertyTypes(config, values),
@@ -210,7 +210,7 @@ export class PropertyValidator implements PropertyConfigValidation {
   /**
    * Validates a single property against its type constraints
    */
-  private validatePropertyType(property: PropertyDefinition, value: any): string | null {
+  private validatePropertyType(property: PropertyDefinition, value: unknown): string | null {
     switch (property.type) {
       case 'number':
         if (typeof value !== 'number' || isNaN(value)) {
@@ -264,7 +264,7 @@ export class PropertyValidator implements PropertyConfigValidation {
   /**
    * Validates a single validation rule
    */
-  private validateRule(rule: ValidationRule, value: any, propertyLabel: string): string | null {
+  private validateRule(rule: ValidationRule, value: unknown, propertyLabel: string): string | null {
     switch (rule.type) {
       case 'required':
         if (value === undefined || value === null || value === '') {
@@ -324,8 +324,8 @@ export class PropertyValidator implements PropertyConfigValidation {
   /**
    * Gets default values from property configuration
    */
-  getDefaultValues(config: PropertyConfig): Record<string, any> {
-    const defaults: Record<string, any> = {};
+  getDefaultValues(config: PropertyConfig): Record<string, unknown> {
+    const defaults: Record<string, unknown> = {};
     
     // Apply config-level defaults first
     if (config.defaults) {

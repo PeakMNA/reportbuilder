@@ -23,7 +23,7 @@ export const IMAGE_COMPONENT_TYPE: ComponentType = {
   name: 'Image',
   category: 'Media',
   description: 'Static or dynamic images with responsive sizing',
-  icon: <ImageIcon className="h-4 w-4" />,
+  icon: 'ImageIcon',
   defaultWidth: 200,
   defaultHeight: 150,
   minWidth: 50,
