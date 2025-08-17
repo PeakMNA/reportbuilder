@@ -6,25 +6,9 @@
  */
 
 import '@testing-library/jest-dom'
-import { server } from './__mocks__/server'
 
 // Increase timeout for integration tests
 jest.setTimeout(30000)
-
-// Enable API mocking
-beforeAll(() => {
-  server.listen({
-    onUnhandledRequest: 'error',
-  })
-})
-
-afterEach(() => {
-  server.resetHandlers()
-})
-
-afterAll(() => {
-  server.close()
-})
 
 // Mock Next.js router
 jest.mock('next/router', () => ({

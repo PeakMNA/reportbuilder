@@ -95,5 +95,5 @@ export const LINE_DIVIDER_COMPONENT_TYPE: ComponentType = {
   description: 'Visual separator lines for report organization',
   category: 'Layout',
   icon: 'Minus',
-  defaultProperties: DEFAULT_LINE_DIVIDER_PROPERTIES
+  defaultProperties: DEFAULT_LINE_DIVIDER_PROPERTIES as unknown as Record<string, unknown>
 };

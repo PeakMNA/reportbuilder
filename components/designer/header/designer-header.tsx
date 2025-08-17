@@ -17,7 +17,8 @@ import {
   User,
   Settings,
   Grid3X3,
-  Database
+  Database,
+  Workflow
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -44,6 +45,8 @@ interface Component {
 interface DesignerHeaderProps {
   onToggleDataPreview: () => void
   showDataPreview: boolean
+  showWorkflow?: boolean
+  onToggleWorkflow?: () => void
   canvasRef?: React.RefObject<HTMLDivElement>
   reportTitle?: string
   currentComponents?: Component[]
@@ -57,7 +60,9 @@ interface DesignerHeaderProps {
 
 export function DesignerHeader({ 
   onToggleDataPreview, 
-  showDataPreview, 
+  showDataPreview,
+  showWorkflow = false,
+  onToggleWorkflow,
   canvasRef, 
   reportTitle = 'Report',
   currentComponents = [],
@@ -147,6 +152,7 @@ export function DesignerHeader({
             disabled={!commandSystem?.canUndo}
             onClick={() => commandSystem?.undo()}
             title="Undo (Ctrl+Z)"
+            aria-label="Undo last action"
           >
             <Undo className="h-4 w-4" />
           </Button>
@@ -156,6 +162,7 @@ export function DesignerHeader({
             disabled={!commandSystem?.canRedo}
             onClick={() => commandSystem?.redo()}
             title="Redo (Ctrl+Y)"
+            aria-label="Redo last undone action"
           >
             <Redo className="h-4 w-4" />
           </Button>
@@ -163,18 +170,18 @@ export function DesignerHeader({
           <Separator orientation="vertical" className="h-4" />
           
           <div className="flex items-center space-x-1">
-            <Button variant="ghost" size="sm" onClick={handleZoomOut}>
+            <Button variant="ghost" size="sm" onClick={handleZoomOut} aria-label="Zoom out">
               <ZoomOut className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleZoomReset}>
+            <Button variant="ghost" size="sm" onClick={handleZoomReset} aria-label="Reset zoom to 100%">
               <span className="text-sm font-mono w-12 text-center">{zoomLevel}%</span>
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleZoomIn}>
+            <Button variant="ghost" size="sm" onClick={handleZoomIn} aria-label="Zoom in">
               <ZoomIn className="h-4 w-4" />
             </Button>
           </div>
 
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" aria-label="Toggle grid">
             <Grid3X3 className="h-4 w-4" />
           </Button>
         </div>
@@ -182,14 +189,24 @@ export function DesignerHeader({
         <Separator orientation="vertical" className="h-6" />
 
         {/* View Controls */}
-        <Button 
-          variant={showDataPreview ? "default" : "outline"} 
-          size="sm"
-          onClick={onToggleDataPreview}
-        >
-          <Database className="mr-2 h-4 w-4" />
-          Data Preview
-        </Button>
+        <div className="flex items-center space-x-2">
+          <Button 
+            variant={showWorkflow ? "default" : "outline"} 
+            size="sm"
+            onClick={onToggleWorkflow}
+          >
+            <Workflow className="mr-2 h-4 w-4" />
+            Workflow
+          </Button>
+          <Button 
+            variant={showDataPreview ? "default" : "outline"} 
+            size="sm"
+            onClick={onToggleDataPreview}
+          >
+            <Database className="mr-2 h-4 w-4" />
+            Data Preview
+          </Button>
+        </div>
       </div>
 
       <div className="ml-auto flex items-center space-x-4">
@@ -220,7 +237,7 @@ export function DesignerHeader({
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" aria-label="Open user menu">
               <User className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

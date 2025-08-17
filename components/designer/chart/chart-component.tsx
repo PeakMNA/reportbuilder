@@ -24,7 +24,16 @@ export const CHART_COMPONENT_TYPE: ComponentType = {
   name: 'Chart',
   category: 'Data',
   description: 'Data visualization charts with customizable appearance',
-  icon: <BarChart3 className="h-4 w-4" />,
+  icon: 'BarChart3',
+  defaultProperties: {
+    chartType: 'bar',
+    title: 'Chart Title',
+    colorScheme: '#3b82f6',
+    dataSource: null,
+    xField: null,
+    width: 300,
+    height: 200
+  },
   defaultWidth: 300,
   defaultHeight: 200,
   minWidth: 200,

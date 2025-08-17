@@ -106,7 +106,7 @@ export class PropertyConfigRegistry {
   /**
    * Validate a component's current property values
    */
-  validateComponent(componentId: string, values: Record<string, any>): ValidationResult {
+  validateComponent(componentId: string, values: Record<string, unknown>): ValidationResult {
     const config = this.getConfig(componentId);
     
     if (!config) {
@@ -125,7 +125,7 @@ export class PropertyConfigRegistry {
   /**
    * Get default property values for a component
    */
-  getDefaultValues(componentId: string): Record<string, any> {
+  getDefaultValues(componentId: string): Record<string, unknown> {
     const config = this.getConfig(componentId);
     
     if (!config) {
